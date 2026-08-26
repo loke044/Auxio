@@ -171,6 +171,7 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
         collectImmediately(listModel.selected, ::updateSelection)
         collectImmediately(musicModel.indexingState, ::updateIndexerState)
         collect(musicModel.playlistDecision.flow, ::handlePlaylistDecision)
+        collect(musicModel.songDecision.flow, ::handleSongDecision)
         collectImmediately(musicModel.playlistMessage.flow, ::handlePlaylistMessage)
         collect(playbackModel.playbackDecision.flow, ::handlePlaybackDecision)
     }
@@ -371,6 +372,18 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
                     HomeFragmentDirections.addToPlaylist(
                         decision.songs.map { it.uid }.toTypedArray()
                     )
+                }
+            }
+        findNavController().navigateSafe(directions)
+    }
+
+    private fun handleSongDecision(decision: SongDecision?) {
+        if (decision == null) return
+        val directions =
+            when (decision) {
+                is SongDecision.Delete -> {
+                    L.d("Deleting ${decision.song}")
+                    HomeFragmentDirections.deleteSong(decision.song.uid)
                 }
             }
         findNavController().navigateSafe(directions)

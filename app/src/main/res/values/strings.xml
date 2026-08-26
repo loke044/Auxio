@@ -94,6 +94,7 @@
     <string name="lbl_rename_playlist">Rename playlist</string>
     <string name="lbl_delete">Delete</string>
     <string name="lbl_confirm_delete_playlist">Delete playlist?</string>
+    <string name="lbl_confirm_delete_song">Delete song?</string>
     <string name="lbl_edit">Edit</string>
 
     <!-- Search for music -->
@@ -203,6 +204,7 @@
     <string name="lng_playlist_exported">Playlist exported</string>
     <string name="lng_playlist_deleted">Playlist deleted</string>
     <string name="lng_playlist_added">Added to playlist</string>
+    <string name="lng_song_deleted">Song deleted</string>
     <string name="lng_supporters_promo">Donate to the project to get your name added here!</string>
     <!-- As in music library -->
     <string name="lng_search_library">Search your library…</string>
@@ -350,6 +352,8 @@
     <string name="err_share_too_large">This is too large to share</string>
     <string name="err_share_failed">Unable to share this</string>
     <string name="err_no_app">No app found that can handle this task</string>
+    <string name="err_delete_song_failed">Unable to delete this song</string>
+    <string name="err_delete_permission_denied">Permission denied to delete this song</string>
     <!-- No folders in the "Music Folders" setting -->
     <string name="err_bad_location">This folder is not supported</string>
     <string name="lbl_no_folders">No folders</string>
@@ -468,6 +472,7 @@
 
     <string name="fmt_indexing">Loading your music library… (%1$d/%2$d)</string>
     <string name="fmt_deletion_info">Delete %s? This cannot be undone.</string>
+    <string name="fmt_delete_song_info">Are you sure you want to permanently delete \"%s\"?\n\nThis will permanently delete the file from your device and cannot be undone.</string>
 
     <string name="fmt_lib_song_count">Songs loaded: %d</string>
     <string name="fmt_lib_album_count">Albums loaded: %d</string>

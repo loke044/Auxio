@@ -81,6 +81,14 @@ constructor(
     val playlistMessage: Event<PlaylistMessage>
         get() = _playlistMessage
 
+    private val _songDecision = MutableEvent<SongDecision>()
+    /**
+     * A [SongDecision] command that is awaiting a view capable of responding to it. Null if none
+     * currently.
+     */
+    val songDecision: Event<SongDecision>
+        get() = _songDecision
+
     init {
         musicRepository.addUpdateListener(this)
         musicRepository.addIndexingListener(this)
@@ -294,6 +302,16 @@ constructor(
     }
 
     /**
+     * Delete a [Song] file from device storage.
+     *
+     * @param song The [Song] to delete.
+     */
+    fun deleteSong(song: Song) {
+        L.d("Launching deletion dialog for $song")
+        _songDecision.put(SongDecision.Delete(song))
+    }
+
+    /**
      * Add a [Song] to a [Playlist].
      *
      * @param song The [Song] to add to the [Playlist].
@@ -488,4 +506,18 @@ sealed interface PlaylistMessage {
         override val stringRes: Int
             get() = R.string.err_export_failed
     }
+}
+
+/**
+ * Navigation command for when a [Song] must have some operation performed on it by the user.
+ *
+ * @author Alexander Capehart (OxygenCobalt)
+ */
+sealed interface SongDecision {
+    /**
+     * Navigate to a dialog that confirms the deletion of a [Song].
+     *
+     * @param song The song to act on.
+     */
+    data class Delete(val song: Song) : SongDecision
 }

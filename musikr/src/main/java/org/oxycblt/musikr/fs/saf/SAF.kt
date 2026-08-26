@@ -35,6 +35,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.concurrent.ConcurrentHashMap
 import org.oxycblt.musikr.fs.AddedMs
 import org.oxycblt.musikr.fs.Directory
 import org.oxycblt.musikr.fs.FS
@@ -56,7 +57,18 @@ private constructor(
 ) : FS {
     override suspend fun explore(files: Channel<File>): Deferred<Result<Unit>> = coroutineScope {
         tryAsyncWith(files, Dispatchers.Main) {
-            query.source
+            // Deduplicate overlapping folders: If /Music and /Music/FLAC are selected,
+            // exploring /Music will already recursively explore /Music/FLAC. Filter out descendant folders.
+            val normalizedSources =
+                query.source.filter { s1 ->
+                    query.source.none { s2 ->
+                        s2 !== s1 &&
+                            s2.path.volume == s1.path.volume &&
+                            s2.path.components.contains(s1.path.components)
+                    }
+                }
+            val visitedPaths = ConcurrentHashMap.newKeySet<Path>()
+            normalizedSources
                 .map { location ->
                     exploreDirectoryImpl(
                         location.uri,
@@ -64,6 +76,7 @@ private constructor(
                         location.path,
                         null,
                         query.exclude.mapTo(mutableSetOf()) { it.path },
+                        visitedPaths,
                         files,
                     )
                 }
@@ -91,6 +104,7 @@ private constructor(
         relativePath: Path,
         parent: Deferred<Directory>?,
         exclude: Set<Path>,
+        visitedPaths: MutableSet<Path>,
         files: Channel<File>,
     ): Deferred<Result<Unit>> =
         tryAsync(Dispatchers.IO) {
@@ -138,6 +152,7 @@ private constructor(
                                 newPath,
                                 directoryDeferred,
                                 exclude,
+                                visitedPaths,
                                 files,
                             )
                         if (recursive != null) {
@@ -147,6 +162,10 @@ private constructor(
                             subtask.await()
                         }
                     } else {
+                        if (!visitedPaths.add(newPath)) {
+                            // Skip duplicate file already encountered from overlapping folder
+                            continue
+                        }
                         val size = cursor.getLong(sizeIndex)
                         val file =
                             File(

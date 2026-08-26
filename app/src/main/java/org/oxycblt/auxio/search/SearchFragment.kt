@@ -187,6 +187,7 @@ class SearchFragment : ListFragment<Music, FragmentSearchBinding>() {
         collectImmediately(listModel.selected, ::updateSelection)
         collect(listModel.menu.flow, ::handleMenu)
         collect(musicModel.playlistDecision.flow, ::handlePlaylistDecision)
+        collect(musicModel.songDecision.flow, ::handleSongDecision)
         collect(musicModel.playlistMessage.flow, ::handlePlaylistMessage)
         collectImmediately(
             playbackModel.song,
@@ -362,6 +363,18 @@ class SearchFragment : ListFragment<Music, FragmentSearchBinding>() {
                 }
                 is PlaylistDecision.New -> {
                     error("Unexpected decision $decision")
+                }
+            }
+        findNavController().navigateSafe(directions)
+    }
+
+    private fun handleSongDecision(decision: SongDecision?) {
+        if (decision == null) return
+        val directions =
+            when (decision) {
+                is SongDecision.Delete -> {
+                    L.d("Deleting ${decision.song}")
+                    SearchFragmentDirections.deleteSong(decision.song.uid)
                 }
             }
         findNavController().navigateSafe(directions)

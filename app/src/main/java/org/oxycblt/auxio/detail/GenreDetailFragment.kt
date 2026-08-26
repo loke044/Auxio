@@ -73,6 +73,7 @@ class GenreDetailFragment : DetailFragment<Genre, Music>() {
         collect(listModel.menu.flow, ::handleMenu)
         collectImmediately(listModel.selected, ::updateSelection)
         collect(musicModel.playlistDecision.flow, ::handlePlaylistDecision)
+        collect(musicModel.songDecision.flow, ::handleSongDecision)
         collect(musicModel.playlistMessage.flow, ::handlePlaylistMessage)
         collectImmediately(
             playbackModel.song,
@@ -251,6 +252,18 @@ class GenreDetailFragment : DetailFragment<Genre, Music>() {
                 is PlaylistDecision.Rename,
                 is PlaylistDecision.Export,
                 is PlaylistDecision.Delete -> error("Unexpected playlist decision $decision")
+            }
+        findNavController().navigateSafe(directions)
+    }
+
+    private fun handleSongDecision(decision: SongDecision?) {
+        if (decision == null) return
+        val directions =
+            when (decision) {
+                is SongDecision.Delete -> {
+                    L.d("Deleting ${decision.song}")
+                    GenreDetailFragmentDirections.deleteSong(decision.song.uid)
+                }
             }
         findNavController().navigateSafe(directions)
     }

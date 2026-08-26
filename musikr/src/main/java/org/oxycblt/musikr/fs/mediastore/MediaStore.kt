@@ -74,6 +74,10 @@ private constructor(
                     if (pathSelector != null) {
                         selector += " AND (${pathSelector.template})"
                         args.addAll(pathSelector.args)
+                    } else {
+                        // When no folders are selected in INCLUDE mode, match nothing (0 files).
+                        // Never fall back to scanning the entire device!
+                        selector += " AND 0=1"
                     }
                 }
                 FilterMode.EXCLUDE -> {
